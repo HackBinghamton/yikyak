@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Yik Yak 2.0</title>
+  </head>
+  <body>
+    <h2>Welcome to Yik Yak</h2>
+    <div id="yak-container"></div>
+
+    <script>
+'use strict';
+
+function show_yaks() {
+  // Clear our container first
+  document.getElementById("yak-container").innerHTML = "";
+  httpGetAsync("/yaks", function(response) {
+    var yaks = JSON.parse(response);
+    for (var i in yaks) {
+      var yak = yaks[i];
+      var yakdiv = document.createElement("div");
+      yakdiv.setAttribute("class", "yak");
+
+      var votes = document.createElement("div");
+      votes.setAttribute("class", "vote-count");
+      votes.innerHTML = yak.votes;
+
+      var upvote = document.createElement("button");
+      upvote.setAttribute("class", "upvote");
+      var downvote = document.createElement("button");
+      downvote.setAttribute("class", "downvote");
+      upvote.innerHTML = "Upvote";
+      downvote.innerHTML = "Downvote";
+      upvote.onclick = upvote_click(i);
+        downvote.onclick = downvote_click(i);
+      yakdiv.appendChild(votes);
+      yakdiv.appendChild(upvote);
+      yakdiv.appendChild(downvote);
+      var divcontent = document.createTextNode(yak.text);
+      yakdiv.appendChild(divcontent);
+      document.getElementById("yak-container").appendChild(yakdiv);
+    }
+  });
+}
+
+show_yaks();
+
+
+function upvote_click(id) {
+  id = parseInt(id);
+  return function() {
+    send_post("/upvote", {'id': id});
+  }
+}
+
+function downvote_click(id) {
+  id = parseInt(id);
+  return function() {
+    send_post("/downvote", {'id': id});
+  }
+}
+
+
+function httpGetAsync(theUrl, callback)
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            callback(xmlHttp.responseText);
+    }
+    xmlHttp.open("GET", theUrl, true);
+    xmlHttp.send(null);
+}
+
+function send_post(url, content, callback) {
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", url, true);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.send(JSON.stringify(content));
+  xhr.onreadystatechange = function () {
+    if (this.readyState != 4) return;
+
+    if (callback && this.status == 200) {
+      callback(this.responseText);
+    }
+  }
+}
+    </script>
+  </body>
+</html>
