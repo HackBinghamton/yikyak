@@ -10,14 +10,14 @@
     <button onclick="submit_yak()">Submit</button>
 
     <br><br>
-    
+
     <div id="yak-container"></div>
 
     <script>
 'use strict';
 
 function show_yaks() {
-  httpGetAsync("/yaks", function(response) {
+  get_req("/yaks", function(response) {
     // Clear our container first
     document.getElementById("yak-container").innerHTML = "";
     var yaks = JSON.parse(response);
@@ -37,7 +37,7 @@ function show_yaks() {
       upvote.innerHTML = "Upvote";
       downvote.innerHTML = "Downvote";
       upvote.onclick = upvote_click(i);
-        downvote.onclick = downvote_click(i);
+      downvote.onclick = downvote_click(i);
       yakdiv.appendChild(votes);
       yakdiv.appendChild(upvote);
       yakdiv.appendChild(downvote);
@@ -74,29 +74,27 @@ function submit_yak() {
 }
 
 
-function httpGetAsync(theUrl, callback)
-{
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
-    }
-    xmlHttp.open("GET", theUrl, true);
-    xmlHttp.send(null);
+function get_req(url, callback) {
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4 && xhr.status == 200)
+      callback(xhr.responseText);
+  }
+  xhr.open("GET", url, true);
+  xhr.send(null);
 }
 
 function send_post(url, content, callback) {
   var xhr = new XMLHttpRequest();
+  if (callback) { // Don't set unless we have a callback function
+    xhr.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200)
+        callback(this.responseText);
+    };
+  }
   xhr.open("POST", url, true);
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.send(JSON.stringify(content));
-  xhr.onreadystatechange = function () {
-    if (this.readyState != 4) return;
-
-    if (callback && this.status == 200) {
-      callback(this.responseText);
-    }
-  }
 }
     </script>
   </body>
