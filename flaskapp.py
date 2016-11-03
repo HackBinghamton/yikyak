@@ -15,7 +15,8 @@ def mainpage():
 
 @app.route("/yak", methods=['POST'])
 def addyak():
-    return str(request.get_json())
+    yaks.insert(0, request.get_json())
+    return "okay"
 
 
 @app.route("/yaks", methods=['GET'])
@@ -25,7 +26,6 @@ def getyaks():
 
 @app.route("/upvote", methods=['POST'])
 def upvote():
-    print(request.get_json())
     yak = request.get_json()['id']
     yaks[yak]['votes'] += 1
     return "okay"

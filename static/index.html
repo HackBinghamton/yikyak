@@ -5,15 +5,21 @@
   </head>
   <body>
     <h2>Welcome to Yik Yak</h2>
+
+    <input id="yak-submit" type="text"></input>
+    <button onclick="submit_yak()">Submit</button>
+
+    <br><br>
+    
     <div id="yak-container"></div>
 
     <script>
 'use strict';
 
 function show_yaks() {
-  // Clear our container first
-  document.getElementById("yak-container").innerHTML = "";
   httpGetAsync("/yaks", function(response) {
+    // Clear our container first
+    document.getElementById("yak-container").innerHTML = "";
     var yaks = JSON.parse(response);
     for (var i in yaks) {
       var yak = yaks[i];
@@ -48,15 +54,23 @@ show_yaks();
 function upvote_click(id) {
   id = parseInt(id);
   return function() {
-    send_post("/upvote", {'id': id});
+    send_post("/upvote", {'id': id}, show_yaks);
   }
 }
 
 function downvote_click(id) {
   id = parseInt(id);
   return function() {
-    send_post("/downvote", {'id': id});
+    send_post("/downvote", {'id': id}, show_yaks);
   }
+}
+
+function submit_yak() {
+  var textbox = document.getElementById("yak-submit");
+  send_post("/yak", {"text": textbox.value, "votes": 0}, function() {
+    textbox.value = "";
+    show_yaks();
+  });
 }
 
 
